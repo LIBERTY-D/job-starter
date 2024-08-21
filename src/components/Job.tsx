@@ -30,7 +30,7 @@ export default function Job({ jb: props, deleteJob, likeJob }: JobProps) {
   const [liked, setLike] = useState<boolean>(false);
 
   useEffect(() => {
-    setLike(props.liked?.includes(user?.id));
+    setLike(props.liked?.includes(user?.id!!) as boolean);
   }, [props, user]);
   return (
     <>

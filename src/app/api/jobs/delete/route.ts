@@ -23,10 +23,12 @@ export async function DELETE(req: NextRequest) {
       data: null,
     });
   } catch (error) {
-    return NextResponse.json({
-      status: 500,
-      message: error?.message,
-      data: null,
-    });
+    if (error instanceof Error) {
+      return NextResponse.json({
+        status: 500,
+        message: error?.message,
+        data: null,
+      });
+    }
   }
 }

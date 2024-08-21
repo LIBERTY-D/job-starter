@@ -79,7 +79,7 @@ export default function NewJob(props: Props) {
       const base64 = await ConvertToBase64(e.target.files[0]);
       setJobData((prevState) => {
         {
-          return { ...prevState, job_icon: base64 };
+          return { ...prevState, job_icon: base64 as string };
         }
       });
     }
@@ -90,7 +90,7 @@ export default function NewJob(props: Props) {
       return {
         ...prevState,
         [e.target.name]: e.target.value,
-        user_id: user?.id,
+        user_id: user?.id as number,
       };
     });
   };
@@ -102,7 +102,7 @@ export default function NewJob(props: Props) {
       return {
         ...prevState,
         [e.target.name]: e.target.value,
-        user_id: user?.id,
+        user_id: user?.id as number,
         company_id: parseInt(props.params.orgId),
       };
     });

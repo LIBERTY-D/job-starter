@@ -53,10 +53,12 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (error) {
-    return NextResponse.json({
-      status: 400,
-      message: error?.message,
-      data: null,
-    });
+    if (error instanceof Error) {
+      return NextResponse.json({
+        status: 400,
+        message: error?.message,
+        data: null,
+      });
+    }
   }
 }

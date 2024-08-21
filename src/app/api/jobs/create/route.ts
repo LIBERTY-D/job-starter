@@ -57,11 +57,13 @@ export async function POST(req: NextRequest) {
       data: { contact, jobs },
     });
   } catch (error) {
-    // Handle any unexpected errors
-    return NextResponse.json({
-      status: 500,
-      message: "An unexpected error occurred",
-      error: error.message,
-    });
+   
+    if(error instanceof Error){
+      return NextResponse.json({
+        status: 500,
+        message: "An unexpected error occurred",
+        error: error.message,
+      });
+    }
   }
 }
