@@ -1,11 +1,10 @@
-import { supabase } from '@/lib/superbase';
-import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from "@/lib/superbase";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(req: NextRequest) {
   try {
     const { personData, jobData } = await req.json();
 
-  console.log(jobData)
     const [contactResult, jobsResult] = await Promise.all([
       supabase
         .from("contact")
@@ -16,7 +15,8 @@ export async function PATCH(req: NextRequest) {
             phone_number: personData.phone_number,
             user_id: personData.user?.id,
           },
-        ]).eq("contact_id",jobData.contact.contact_id)
+        ])
+        .eq("contact_id", jobData.contact.contact_id)
         .select(),
       supabase
         .from("jobs")
@@ -34,7 +34,8 @@ export async function PATCH(req: NextRequest) {
             job_icon: jobData.job_icon,
             company_id: jobData.company_id.company_id,
           },
-        ]).eq("job_id",jobData.job_id)
+        ])
+        .eq("job_id", jobData.job_id)
         .select(),
     ]);
 

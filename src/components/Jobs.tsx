@@ -3,15 +3,13 @@ import { JobType } from "@/app/page";
 import Job from "./Job";
 import axios from "axios";
 import { useUser } from "@/context/usercontext/UserContext";
-import {  Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 type JobPropType = {
   jobs: JobType[] | null;
-
 };
 export default function Jobs({ jobs }: JobPropType) {
   const { user } = useUser();
-
 
   const deleteJob = async (
     _: React.MouseEvent<HTMLSpanElement>,
@@ -31,12 +29,16 @@ export default function Jobs({ jobs }: JobPropType) {
         window.location.reload();
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
-  const likeJob = async (_: React.MouseEvent<SVGElement>, id: number, setLike: Dispatch<SetStateAction<boolean>>,liked:boolean) => {
-  
+  const likeJob = async (
+    _: React.MouseEvent<SVGElement>,
+    id: number,
+    setLike: Dispatch<SetStateAction<boolean>>,
+    liked: boolean
+  ) => {
     try {
       const { data } = await axios.post(
         "/api/jobs/like",
@@ -49,12 +51,11 @@ export default function Jobs({ jobs }: JobPropType) {
       );
 
       if (data.status == 200) {
-        if(data.message=="liked"){
-          setLike(true)
-        }else{
-          setLike(false)
+        if (data.message == "liked") {
+          setLike(true);
+        } else {
+          setLike(false);
         }
-           
       }
     } catch (error) {
       console.log(error);

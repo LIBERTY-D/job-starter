@@ -11,7 +11,6 @@ import {
 import "@radix-ui/themes/styles.css";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 
-// @ts-ignore
 import {
   CitySelect,
   CountrySelect,
@@ -22,8 +21,8 @@ import { MdOutlineFileDownload } from "react-icons/md";
 import { ToastError } from "@/components/ToastError";
 import { ConvertToBase64 } from "@/utils/ConvertToBase64";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { JobType } from "@/app/page";
+import Toast from "@/components/Toast";
 
 type Props = {
   params: {
@@ -43,12 +42,16 @@ type Contact = {
 export default function NewJob(props: Props) {
   const [country, setCountry] = useState(0);
   const [state, setState] = useState(0);
-  const [city, setCity] = useState(0);
+  const [_, setCity] = useState(0);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const router = useRouter();
   const [isSubmitted, setIsubmitted] = useState<boolean>(false);
   const { user } = useUser();
-  const [job,setJob] =  useState<JobType&{contact:Contact}>()
+  const [job, setJob] = useState<JobType & { contact: Contact }>();
+  const [toast, setToast] = useState<{
+    show: boolean;
+    type: "success" | "error";
+    message: string;
+  }>({ show: false, message: "", type: "error" });
   const [jobData, setJobData] = useState<{
     job_title: string;
     job_desc: string;
@@ -67,14 +70,14 @@ export default function NewJob(props: Props) {
     job_desc: job?.job_desc!!,
     user_id: user?.id!!,
     remote: job?.remote!!,
-    full_time:job?.full_time!!,
+    full_time: job?.full_time!!,
     country: job?.country!!,
     state: job?.state!!,
     city: job?.city!!,
     salary: job?.salary!!,
     job_icon: job?.job_icon!!,
     job_id: job?.job_id!!,
-    company_id:job?.company_id.company_id!!,
+    company_id: job?.company_id.company_id!!,
   });
 
   const [personData, setPersonData] = useState<{
@@ -89,11 +92,6 @@ export default function NewJob(props: Props) {
     phone_number: job?.contact?.phone_number!!,
     user_id: user?.id!!,
     contact_id: job?.contact?.contact_id!!,
-  });
-
-  const [err, setErr] = useState<{ isErr: boolean; message: string }>({
-    isErr: false,
-    message: "",
   });
 
   const upload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -125,7 +123,6 @@ export default function NewJob(props: Props) {
         ...prevState,
         [e.target.name]: e.target.value,
         user_id: user?.id,
-      
       };
     });
   };
@@ -154,7 +151,7 @@ export default function NewJob(props: Props) {
       !jobData.company_id ||
       jobData.company_id < 0
     ) {
-      setErr({ isErr: true, message: "fields can't be empty" });
+      setToast({ show: true, message: "fields can't be empty", type: "error" });
     } else {
       try {
         setIsubmitted(true);
@@ -166,7 +163,6 @@ export default function NewJob(props: Props) {
             },
             jobData: {
               ...jobData,
-            
             },
           },
           {
@@ -175,18 +171,23 @@ export default function NewJob(props: Props) {
             },
           }
         );
+
         if (data.status == 200) {
+          setToast({ message: "update success", show: true, type: "success" });
           setIsubmitted(false);
-          setErr({ isErr: false, message: "" });
-        
         }
-      
+
         if (data.status == 400) {
           setIsubmitted(false);
-          setErr({ isErr: true, message: data.message });
+
+          setToast({ message: data.message, show: true, type: "error" });
         }
       } catch (error) {
-        setErr({ isErr: true, message: "retry again there was an error" });
+        setToast({
+          message: "retry again there was an error",
+          show: true,
+          type: "error",
+        });
         setIsubmitted(false);
       }
     }
@@ -194,29 +195,37 @@ export default function NewJob(props: Props) {
 
   useEffect(() => {
     const fetchJob = async () => {
-        try {
-          const {data}=  await axios.get(`/api/jobs/findOne?id=${props.params.id}`)
-         
-          setJob({...data.job,...data.job[0]})
-          setJobData({
-            ...data.job[0], ...data.job
-           })
-      
-        } catch (error) {
-          setErr({isErr:true,message:"failed to retrieve data"})
-          console.log(error)
-        }
+      try {
+        const { data } = await axios.get(
+          `/api/jobs/findOne?id=${props.params.id}`
+        );
 
+        setJob({ ...data.job, ...data.job[0] });
+        setJobData({
+          ...data.job[0],
+          ...data.job,
+        });
+      } catch (error) {
+        setToast({
+          message: "failed to retrieve data",
+          show: true,
+          type: "error",
+        });
+      }
     };
-     if(props.params.id){
-      fetchJob()
-  }
-
+    if (props.params.id) {
+      fetchJob();
+    }
   }, [props.params.id]);
- 
+
+  const closeToast = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setToast({ message: "", show: false, type: "error" });
+  };
   return (
     <>
-      {err.isErr && <ToastError setErr={setErr} err={err} />}
+      {toast.show && (
+        <Toast onClose={closeToast} message={toast.message} type={toast.type} />
+      )}
       <Theme className="border shadow-lg rounded-md">
         <form className="container mt-6 flex flex-col gap-4" method="POST">
           <TextField.Root
@@ -229,7 +238,7 @@ export default function NewJob(props: Props) {
             <div className="flex flex-col gap-3">
               <h1>Job Icon</h1>
               <div className="border rounded-md flex items-center justify-center bg-gray-200 p-50 w-50 h-auto">
-                {jobData.job_icon&&jobData.job_icon.length > 0 ? (
+                {jobData.job_icon && jobData.job_icon.length > 0 ? (
                   <img
                     className="w-fit bg-transparent"
                     src={jobData.job_icon}
@@ -237,10 +246,10 @@ export default function NewJob(props: Props) {
                   />
                 ) : (
                   <img
-                  className="w-fit bg-transparent"
-                  src={job?.job_icon}
-                  alt="[icon]"
-                />
+                    className="w-fit bg-transparent"
+                    src={job?.job_icon}
+                    alt="[icon]"
+                  />
                 )}
               </div>
               <input
@@ -264,12 +273,11 @@ export default function NewJob(props: Props) {
                 <TextField.Root
                   placeholder="full name"
                   name="full_name"
-                  
                   defaultValue={job?.contact?.full_name}
                   onChange={handlePersonData}
                 />
                 <TextField.Root
-                defaultValue={job?.contact?.email}
+                  defaultValue={job?.contact?.email}
                   onChange={handlePersonData}
                   type="email"
                   placeholder="email"
@@ -289,7 +297,7 @@ export default function NewJob(props: Props) {
             <div className="flex gap-4 flex-col">
               <h1>Remote ?</h1>
               <RadioGroup.Root
-              value={job?.remote}
+                value={job?.remote}
                 name="remote"
                 onValueChange={(value) => handleRadioChange("remote", value)}
               >
@@ -320,7 +328,6 @@ export default function NewJob(props: Props) {
                   });
                   setCountry(e.id);
                 }}
-                
                 placeHolder="Select Country"
               />
               <StateSelect
@@ -348,7 +355,11 @@ export default function NewJob(props: Props) {
           </div>
           <div className="flex flex-col">
             <h1> Salary(per year)</h1>
-            <TextField.Root name="salary" defaultValue={job?.salary} onChange={handleJobData}>
+            <TextField.Root
+              name="salary"
+              defaultValue={job?.salary}
+              onChange={handleJobData}
+            >
               <TextField.Slot>zl</TextField.Slot>
             </TextField.Root>
           </div>

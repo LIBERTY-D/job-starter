@@ -1,5 +1,5 @@
-import { supabase } from '@/lib/superbase';
-import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from "@/lib/superbase";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,8 +40,7 @@ export async function POST(req: NextRequest) {
 
     const { data: contact, error: contactError } = contactResult;
     const { data: jobs, error: jobError } = jobsResult;
-    
-    
+
     // Check for errors and return appropriate response
     if (contactError || jobError) {
       return NextResponse.json({

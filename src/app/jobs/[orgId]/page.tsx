@@ -11,7 +11,6 @@ import {
 import "@radix-ui/themes/styles.css";
 import React, { ChangeEvent, useRef, useState } from "react";
 
-// @ts-ignore
 import {
   CitySelect,
   CountrySelect,
@@ -21,7 +20,7 @@ import "react-country-state-city/dist/react-country-state-city.css";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { ToastError } from "@/components/ToastError";
 import { ConvertToBase64 } from "@/utils/ConvertToBase64";
-import axios from "axios"
+import axios from "axios";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -34,7 +33,7 @@ export default function NewJob(props: Props) {
   const [state, setState] = useState(0);
   const [city, setCity] = useState(0);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const router = useRouter()
+  const router = useRouter();
   const [isSubmitted, setIsubmitted] = useState<boolean>(false);
   const { user } = useUser();
   const [jobData, setJobData] = useState<{
@@ -136,7 +135,7 @@ export default function NewJob(props: Props) {
       setErr({ isErr: true, message: "fields can't be empty" });
     } else {
       try {
-        setIsubmitted(true)
+        setIsubmitted(true);
         const { data } = await axios.post(
           "/api/jobs/create",
           {
@@ -155,27 +154,26 @@ export default function NewJob(props: Props) {
           }
         );
         if (data.status == 201) {
-          setIsubmitted(false)
-          setErr({isErr:false,message:""})
-          router.push("/")
+          setIsubmitted(false);
+          setErr({ isErr: false, message: "" });
+          router.push("/");
         }
-        if(data.status==400){
-          setIsubmitted(false)
-          setErr({isErr:true,message:data.message})
+        if (data.status == 400) {
+          setIsubmitted(false);
+          setErr({ isErr: true, message: data.message });
         }
       } catch (error) {
-        setErr({isErr:true,message:"retry again there was an error"})
-        setIsubmitted(false)
+        setErr({ isErr: true, message: "retry again there was an error" });
+        setIsubmitted(false);
       }
     }
-  }
+  };
 
   return (
     <>
       {err.isErr && <ToastError setErr={setErr} err={err} />}
       <Theme className="border shadow-lg rounded-md">
         <form className="container mt-6 flex flex-col gap-4" method="POST">
-          
           <TextField.Root
             placeholder="job title"
             name="job_title"
@@ -320,4 +318,4 @@ export default function NewJob(props: Props) {
       </Theme>
     </>
   );
-  }
+}

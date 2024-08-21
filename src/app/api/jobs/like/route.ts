@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     if (job && job.length > 0 && !error) {
       let liked = job[0].liked;
-      if (liked == null ||liked.length==0) {
+      if (liked == null || liked.length == 0) {
         liked = [];
         liked.push(userId);
 
